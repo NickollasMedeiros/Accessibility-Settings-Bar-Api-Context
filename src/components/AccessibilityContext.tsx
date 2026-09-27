@@ -9,7 +9,7 @@ import {
 } from "react";
 
 export interface AccessibilitySettings {
-	fontSize: number; // percentage, default 100
+	fontSize: number;
 	highContrast: boolean;
 	darkMode: boolean;
 	dyslexiaFont: boolean;
@@ -31,7 +31,14 @@ export interface AccessibilityContextProps extends AccessibilitySettings {
 	resetAccessibility: () => void;
 }
 
-const defaultSettings: AccessibilitySettings = {
+export interface AccessibilityProviderProps {
+	children: ReactNode;
+	initialSettings?: Partial<AccessibilitySettings>;
+	persist?: boolean;
+	storageKey?: string;
+}
+
+export const defaultAccessibilitySettings: AccessibilitySettings = {
 	fontSize: 100,
 	highContrast: false,
 	darkMode: false,
@@ -41,46 +48,95 @@ const defaultSettings: AccessibilitySettings = {
 	markerLine: false,
 };
 
+const booleanSettingKeys: Array<keyof AccessibilitySettings> = [
+	"highContrast",
+	"darkMode",
+	"dyslexiaFont",
+	"highlightLinks",
+	"readingLine",
+	"markerLine",
+];
+
+export const normalizeAccessibilitySettings = (
+	settings: Partial<AccessibilitySettings> | null | undefined,
+): AccessibilitySettings => {
+	const normalized: AccessibilitySettings = {
+		...defaultAccessibilitySettings,
+	};
+
+	if (typeof settings?.fontSize === "number" && Number.isFinite(settings.fontSize)) {
+		normalized.fontSize = Math.min(Math.max(settings.fontSize, 40), 200);
+	}
+
+	for (const key of booleanSettingKeys) {
+		if (typeof settings?.[key] === "boolean") {
+			(normalized as unknown as Record<string, boolean | number>)[key] = settings[key] as boolean;
+		}
+	}
+
+	if (normalized.highContrast) {
+		normalized.darkMode = false;
+	}
+
+	return normalized;
+};
+
 const AccessibilityContext = createContext<
 	AccessibilityContextProps | undefined
 >(undefined);
 
 export const AccessibilityProvider = ({
 	children,
-}: {
-	children: ReactNode;
-}) => {
-	const [settings, setSettings] = useState<AccessibilitySettings>(() => {
-		if (typeof window !== "undefined") {
-			const stored = localStorage.getItem("a11y-settings");
+	initialSettings,
+	persist = true,
+	storageKey = "a11y-settings",
+}: AccessibilityProviderProps) => {
+	const [settings, setSettings] = useState<AccessibilitySettings>(() =>
+		normalizeAccessibilitySettings(initialSettings),
+	);
+	const [isHydrated, setIsHydrated] = useState(false);
+
+	useEffect(() => {
+		if (!persist) {
+			queueMicrotask(() => setIsHydrated(true));
+			return;
+		}
+
+		try {
+			const stored = window.localStorage.getItem(storageKey);
 			if (stored) {
-				try {
-					return { ...defaultSettings, ...JSON.parse(stored) };
-				} catch (e) {
-					console.error(e);
-				}
+				const parsed: unknown = JSON.parse(stored);
+				queueMicrotask(() => {
+					setSettings((current) =>
+						normalizeAccessibilitySettings({
+							...current,
+							...(parsed && typeof parsed === "object" ? parsed : {}),
+						}),
+					);
+				});
 			}
+		} catch {
+			try {
+				window.localStorage.removeItem(storageKey);
+			} catch {
+				return;
+			}
+		} finally {
+			queueMicrotask(() => setIsHydrated(true));
 		}
-		return defaultSettings;
-	});
-
-	const [isInitialized, setIsInitialized] = useState(false);
+	}, [persist, storageKey]);
 
 	useEffect(() => {
-		setIsInitialized(true);
-	}, []);
+		if (!persist || !isHydrated) return;
 
-	// Sync to localStorage
-	useEffect(() => {
-		if (isInitialized) {
-			localStorage.setItem("a11y-settings", JSON.stringify(settings));
+		try {
+			window.localStorage.setItem(storageKey, JSON.stringify(settings));
+		} catch {
+			return;
 		}
-	}, [settings, isInitialized]);
+	}, [isHydrated, persist, settings, storageKey]);
 
-	// Apply attributes to HTML
 	useEffect(() => {
-		if (!isInitialized) return;
-
 		const html = document.documentElement;
 
 		html.style.fontSize = `${settings.fontSize}%`;
@@ -120,7 +176,7 @@ export const AccessibilityProvider = ({
 		} else {
 			html.removeAttribute("data-a11y-marker-line");
 		}
-	}, [settings, isInitialized]);
+	}, [settings]);
 
 	const increaseFontSize = () => {
 		setSettings((prev) => ({
@@ -181,7 +237,7 @@ export const AccessibilityProvider = ({
 	};
 
 	const resetAccessibility = () => {
-		setSettings(defaultSettings);
+		setSettings(normalizeAccessibilitySettings(initialSettings));
 	};
 
 	return (

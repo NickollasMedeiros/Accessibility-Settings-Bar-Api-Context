@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Accessibility Settings Bar
 
-## Getting Started
+Barra de acessibilidade reutilizável para aplicações React e Next.js com App Router.
 
-First, run the development server:
+## Funcionalidades
+
+- Aumentar e diminuir o tamanho global da fonte.
+- Alto contraste e modo escuro.
+- Fonte com maior espaçamento para leitura facilitada.
+- Destaque visual de links.
+- Linha de leitura e linha guia acompanhando o cursor.
+- Persistência opcional das preferências em `localStorage`.
+- Variantes customizadas do Tailwind baseadas em `data-*`.
+- Operação por teclado com foco, `Escape` e atributos ARIA.
+
+## Executar localmente
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000) para testar a demonstração.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Outros comandos:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+npm run start
+```
 
-## Learn More
+## Uso no Next.js
 
-To learn more about Next.js, take a look at the following resources:
+O provider deve envolver o conteúdo da aplicação, normalmente no layout raiz:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```tsx
+import {
+  AccessibilityProvider,
+  AccessibilityWidget,
+} from "your-package";
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="pt-BR">
+      <body>
+        <AccessibilityProvider>
+          {children}
+          <AccessibilityWidget />
+        </AccessibilityProvider>
+      </body>
+    </html>
+  );
+}
+```
 
-## Deploy on Vercel
+Consulte [documentacao.md](documentacao.md) para conhecer a arquitetura, o fluxo de estado e todas as opções da API.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tailwind CSS
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Registre o plugin no `tailwind.config.ts` do projeto consumidor:
+
+```ts
+import { accessibilityPlugin } from "your-package";
+
+export default {
+  content: ["./src/**/*.{ts,tsx}"],
+  plugins: [accessibilityPlugin],
+};
+```
+
+Depois, use variantes como `a11y-dark:bg-gray-950`, `a11y-contrast:bg-black` e `a11y-dyslexia:font-sans`.
+
+## Status do projeto
+
+O repositório contém uma aplicação Next.js de demonstração e a API pública inicial da biblioteca em `src/index.ts`. O empacotamento para publicação npm ainda deve ser configurado antes de publicar o pacote.

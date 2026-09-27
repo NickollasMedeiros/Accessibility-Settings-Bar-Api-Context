@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import clsx from "clsx";
 import { useAccessibility } from "./AccessibilityContext";
@@ -10,7 +10,6 @@ import {
   MagnifyingGlassPlusIcon,
   MagnifyingGlassMinusIcon,
   ArrowPathIcon,
-  SunIcon,
   MoonIcon,
   Bars4Icon,
   EyeIcon,
@@ -31,6 +30,10 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
   className,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuId = useId();
+  const wasOpen = useRef(false);
   const {
     highContrast,
     darkMode,
@@ -65,7 +68,29 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
     "top-left": "top-16 left-0",
   };
 
-  const toggleOpen = () => setIsOpen(!isOpen);
+  useEffect(() => {
+    if (isOpen) {
+      wasOpen.current = true;
+      menuRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+          setIsOpen(false);
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }
+
+    if (wasOpen.current) {
+      triggerRef.current?.focus();
+    }
+
+    wasOpen.current = isOpen;
+  }, [isOpen]);
+
+  const toggleOpen = () => setIsOpen((open) => !open);
 
   return (
     <>
@@ -96,6 +121,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
       >
         {/* Menu */}
         <div
+          ref={menuRef}
           className={twMerge(
             "absolute transition-all duration-300 ease-in-out w-64 bg-gray-900/90 rounded-lg shadow-2xl overflow-y-auto max-h-[80vh] p-2 a11y-contrast:bg-black a11y-contrast:border-yellow-400 a11y-contrast:border a11y-dark:bg-[#121212] a11y-dark:border-[#191414] a11y-dark:border",
             isOpen
@@ -103,9 +129,14 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
               : "opacity-0 translate-y-4 invisible pointer-events-none",
             menuPositionClasses[position]
           )}
-          role="menu"
+          id={menuId}
+          role="dialog"
+          aria-labelledby={`${menuId}-title`}
           aria-label="Menu de acessibilidade"
         >
+          <h2 id={`${menuId}-title`} className="sr-only">
+            Opções de acessibilidade
+          </h2>
           <div className="flex flex-col gap-1">
             <WidgetButton
               icon={<MagnifyingGlassPlusIcon className="w-5 h-5" />}
@@ -124,6 +155,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
               label="Alto contraste"
               onClick={toggleHighContrast}
               active={highContrast}
+              isToggle
               primaryColor={primaryColor}
             />
             <WidgetButton
@@ -131,6 +163,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
               label="Modo escuro"
               onClick={toggleDarkMode}
               active={darkMode}
+              isToggle
               primaryColor={primaryColor}
             />
             <WidgetButton
@@ -138,6 +171,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
               label="Fonte dislexia"
               onClick={toggleDyslexiaFont}
               active={dyslexiaFont}
+              isToggle
               primaryColor={primaryColor}
             />
             <WidgetButton
@@ -145,6 +179,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
               label="Destacar links"
               onClick={toggleHighlightLinks}
               active={highlightLinks}
+              isToggle
               primaryColor={primaryColor}
             />
             <WidgetButton
@@ -152,6 +187,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
               label="Linha de leitura"
               onClick={toggleReadingLine}
               active={readingLine}
+              isToggle
               primaryColor={primaryColor}
             />
             <WidgetButton
@@ -159,6 +195,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
               label="Linha guia"
               onClick={toggleMarkerLine}
               active={markerLine}
+              isToggle
               primaryColor={primaryColor}
             />
             <WidgetButton
@@ -172,6 +209,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
 
         {/* Floating Button */}
         <button
+          ref={triggerRef}
           type="button"
           onClick={toggleOpen}
           className={twMerge(
@@ -180,7 +218,8 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
           )}
           aria-expanded={isOpen}
           aria-haspopup="true"
-          aria-label="Abrir menu de acessibilidade"
+          aria-controls={menuId}
+          aria-label={isOpen ? "Fechar menu de acessibilidade" : "Abrir menu de acessibilidade"}
         >
           {isOpen ? (
             <XMarkIcon className="w-8 h-8" />
@@ -198,6 +237,7 @@ interface WidgetButtonProps {
   label: string;
   onClick: () => void;
   active?: boolean;
+  isToggle?: boolean;
   primaryColor?: string;
 }
 
@@ -206,12 +246,13 @@ const WidgetButton: React.FC<WidgetButtonProps> = ({
   label,
   onClick,
   active,
+  isToggle = false,
   primaryColor,
 }) => {
   return (
     <button
       type="button"
-      role="menuitem"
+      aria-pressed={isToggle ? active : undefined}
       onClick={onClick}
       className={twMerge(
         "flex items-center gap-3 w-full p-2 rounded-md text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 text-gray-800 bg-gray-200 hover:bg-white a11y-contrast:bg-black a11y-contrast:text-yellow-400 a11y-contrast:border a11y-contrast:border-yellow-400 a11y-contrast:hover:bg-yellow-400 a11y-contrast:hover:text-black a11y-dark:bg-[#191414] a11y-dark:text-[#8d8080] a11y-dark:hover:bg-[#292323]",
