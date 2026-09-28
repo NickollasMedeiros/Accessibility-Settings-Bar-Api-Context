@@ -56,7 +56,7 @@ export default function RootLayout({
 }
 ```
 
-Consulte [documentacao.md](documentacao.md) para conhecer a arquitetura, o fluxo de estado e todas as opções da API. Para implementar a biblioteca em outro projeto, siga o guia completo em [implementacao.md](implementacao.md).
+Consulte [documentacao.md](documentacao.md) para conhecer a arquitetura, o fluxo de estado e todas as opções da API. Para implementar a biblioteca em outro projeto, siga o contexto em [implementacao-contexto.md](github/prompts/implementacao-contexto.md). Para orientação executiva para agentes de IA, use [implementacao-agente-prompt.md](github/prompts/implementacao-agente-prompt.md).
 
 ## Tailwind CSS
 
