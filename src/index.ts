@@ -1,3 +1,4 @@
+// Entrada pública da biblioteca: reúne componentes, hooks, tipos e plugin.
 export {
 	AccessibilityProvider,
 	defaultAccessibilitySettings,

@@ -1,5 +1,7 @@
 "use client";
 
+// Contexto client-side que concentra as preferências de acessibilidade,
+// sua persistência e a sincronização dos estados com o elemento <html>.
 import {
 	createContext,
 	type ReactNode,
@@ -9,16 +11,23 @@ import {
 } from "react";
 
 export interface AccessibilitySettings {
+	/** Preferência de tamanho da fonte, em porcentagem, limitada entre 40 e 200. */
 	fontSize: number;
+	/** Alto contraste e modo escuro são opções mutuamente exclusivas. */
 	highContrast: boolean;
 	darkMode: boolean;
+	/** Ativa espaçamento maior e a fonte definida pelos estilos globais. */
 	dyslexiaFont: boolean;
+	/** Destaca todos os links por meio de CSS global. */
 	highlightLinks: boolean;
+	/** Exibe uma linha fina seguindo a posição vertical do mouse. */
 	readingLine: boolean;
+	/** Exibe uma faixa maior para ajudar a acompanhar a leitura. */
 	markerLine: boolean;
 }
 
 export interface AccessibilityContextProps extends AccessibilitySettings {
+	/** Ações públicas consumidas pelo widget e por controles personalizados. */
 	increaseFontSize: () => void;
 	decreaseFontSize: () => void;
 	resetFontSize: () => void;
@@ -32,12 +41,17 @@ export interface AccessibilityContextProps extends AccessibilitySettings {
 }
 
 export interface AccessibilityProviderProps {
+	/** Conteúdo que poderá acessar as preferências. */
 	children: ReactNode;
+	/** Preferências iniciais usadas quando não há valores persistidos. */
 	initialSettings?: Partial<AccessibilitySettings>;
+	/** Define se as preferências devem ser lidas e salvas no localStorage. */
 	persist?: boolean;
+	/** Chave usada para armazenar o JSON das preferências. */
 	storageKey?: string;
 }
 
+/** Valores aplicados quando nenhuma preferência personalizada foi informada. */
 export const defaultAccessibilitySettings: AccessibilitySettings = {
 	fontSize: 100,
 	highContrast: false,
@@ -57,6 +71,7 @@ const booleanSettingKeys: Array<keyof AccessibilitySettings> = [
 	"markerLine",
 ];
 
+/** Preenche valores ausentes, limita a fonte e remove combinações incompatíveis. */
 export const normalizeAccessibilitySettings = (
 	settings: Partial<AccessibilitySettings> | null | undefined,
 ): AccessibilitySettings => {
@@ -91,12 +106,14 @@ export const AccessibilityProvider = ({
 	persist = true,
 	storageKey = "a11y-settings",
 }: AccessibilityProviderProps) => {
+	// O primeiro render é determinístico para evitar diferenças entre servidor e cliente.
 	const [settings, setSettings] = useState<AccessibilitySettings>(() =>
 		normalizeAccessibilitySettings(initialSettings),
 	);
 	const [isHydrated, setIsHydrated] = useState(false);
 
 	useEffect(() => {
+		// Recupera preferências somente no navegador, depois da hidratação.
 		if (!persist) {
 			queueMicrotask(() => setIsHydrated(true));
 			return;
@@ -127,6 +144,7 @@ export const AccessibilityProvider = ({
 	}, [persist, storageKey]);
 
 	useEffect(() => {
+		// Não grava o estado inicial antes de terminar a leitura do localStorage.
 		if (!persist || !isHydrated) return;
 
 		try {
@@ -137,6 +155,7 @@ export const AccessibilityProvider = ({
 	}, [isHydrated, persist, settings, storageKey]);
 
 	useEffect(() => {
+		// Converte o estado React em font-size e atributos consumidos pelo CSS/Tailwind.
 		const html = document.documentElement;
 
 		html.style.fontSize = `${settings.fontSize}%`;
@@ -262,6 +281,7 @@ export const AccessibilityProvider = ({
 };
 
 export const useAccessibility = () => {
+	/** Retorna a API de acessibilidade e exige um provider na árvore React. */
 	const context = useContext(AccessibilityContext);
 	if (context === undefined) {
 		throw new Error(

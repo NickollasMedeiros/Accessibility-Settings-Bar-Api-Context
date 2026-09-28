@@ -1,5 +1,6 @@
 "use client";
 
+// Widget flutuante que transforma a API do contexto em controles acessíveis.
 import React, { useEffect, useId, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import clsx from "clsx";
@@ -19,11 +20,15 @@ import {
 } from "@heroicons/react/24/outline";
 
 export interface AccessibilityWidgetProps {
+  /** Canto da tela onde o botão e o menu serão posicionados. */
   position?: "bottom-right" | "bottom-left" | "top-right" | "top-left";
+  /** Classes Tailwind aplicadas ao botão principal e aos controles ativos. */
   primaryColor?: string;
+  /** Classes adicionais para o container fixo do widget. */
   className?: string;
 }
 
+/** Renderiza linhas de leitura, menu de preferências e botão flutuante. */
 export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
   position = "bottom-right",
   primaryColor = "bg-red-600 hover:bg-red-700",
@@ -54,6 +59,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
 
   const mousePosition = useMousePosition(readingLine || markerLine);
 
+  // Classes separadas permitem manter o posicionamento do menu alinhado ao trigger.
   const positionClasses = {
     "bottom-right": "bottom-4 right-4",
     "bottom-left": "bottom-4 left-4",
@@ -69,6 +75,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
   };
 
   useEffect(() => {
+	// Gerencia foco e Escape para que o menu também seja operável pelo teclado.
     if (isOpen) {
       wasOpen.current = true;
       menuRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
@@ -90,11 +97,12 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
     wasOpen.current = isOpen;
   }, [isOpen]);
 
+  /** Alterna a visibilidade do painel de controles. */
   const toggleOpen = () => setIsOpen((open) => !open);
 
   return (
     <>
-      {/* Reading Line */}
+      {/* Linha fina que acompanha o cursor quando readingLine está ativo. */}
       {readingLine && (
         <div
           className="fixed left-0 w-full h-2 bg-red-600 z-[9999] pointer-events-none opacity-100 a11y-contrast:bg-yellow-400"
@@ -103,7 +111,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
         />
       )}
 
-      {/* Marker Line */}
+      {/* Faixa de leitura que acompanha o cursor quando markerLine está ativo. */}
       {markerLine && (
         <div
           className="fixed left-0 w-full h-8 border-y border-y-[#cde400] bg-[#e4fd00] opacity-75 z-[9999] pointer-events-none mix-blend-color a11y-contrast:mix-blend-multiply a11y-contrast:opacity-100 a11y-dark:bg-[#655b5b] a11y-dark:opacity-25 a11y-dark:mix-blend-normal"
@@ -119,7 +127,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
           className
         )}
       >
-        {/* Menu */}
+        {/* Painel com os controles de acessibilidade. */}
         <div
           ref={menuRef}
           className={twMerge(
@@ -207,7 +215,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
           </div>
         </div>
 
-        {/* Floating Button */}
+        {/* Botão que abre e fecha o painel. */}
         <button
           ref={triggerRef}
           type="button"
@@ -241,6 +249,7 @@ interface WidgetButtonProps {
   primaryColor?: string;
 }
 
+/** Botão reutilizável para ações simples e opções booleanas do widget. */
 const WidgetButton: React.FC<WidgetButtonProps> = ({
   icon,
   label,

@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tokens visuais padrão usados pelo body da demonstração. */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -14,6 +15,7 @@ body {
   font-family: var(--font-geist-sans), sans-serif;
 }
 
+/* Cada seletor abaixo reage aos atributos escritos pelo AccessibilityProvider. */
 html[data-a11y-dark="true"] body {
   background: #030712;
   color: #f3f4f6;

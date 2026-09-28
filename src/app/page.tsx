@@ -1,3 +1,4 @@
+// Página de demonstração usada para visualizar as alterações de acessibilidade.
 export default function Home() {
   return (
     <main className="min-h-[100dvh] w-full flex-1 bg-white text-gray-950 a11y-dark:bg-gray-950 a11y-dark:text-gray-100 a11y-contrast:bg-black a11y-contrast:text-yellow-300">

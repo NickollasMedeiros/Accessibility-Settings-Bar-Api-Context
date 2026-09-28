@@ -4,6 +4,7 @@ import { AccessibilityProvider } from "../components/AccessibilityContext";
 import { AccessibilityWidget } from "../components/AccessibilityWidget";
 import "./globals.css";
 
+// Fontes e metadados pertencem ao layout compartilhado de todas as rotas.
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  // O provider e o widget ficam no layout para atender todas as páginas.
   return (
     <html
       lang="pt-BR"

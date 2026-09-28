@@ -1,5 +1,9 @@
 import plugin from "tailwindcss/plugin";
 
+/**
+ * Cria variantes Tailwind que ativam estilos quando o provider coloca o
+ * atributo correspondente no elemento raiz <html>.
+ */
 export const accessibilityPlugin = plugin(({ addVariant }) => {
   addVariant("a11y-contrast", ":is(html[data-a11y-contrast=\"true\"]) &");
   addVariant("a11y-dark", ":is(html[data-a11y-dark=\"true\"]) &");
