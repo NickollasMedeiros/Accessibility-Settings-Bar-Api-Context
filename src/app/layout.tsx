@@ -16,21 +16,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Accessibility Settings Bar",
+  title: "Accessibility Settings Bar Example",
   description: "Reusable accessibility controls for React and Next.js applications.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
-  // O provider e o widget ficam no layout para atender todas as páginas.
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased transition-all duration-300 ease-in-out`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col transition-colors duration-300 ease-in-out a11y-contrast:bg-black a11y-contrast:text-white a11y-dark:bg-[#121212] a11y-dark:text-[#655b5b] a11y-dyslexia:font-mono">
         <AccessibilityProvider>
           {children}
-          <AccessibilityWidget />
+          <AccessibilityWidget position="bottom-right" />
         </AccessibilityProvider>
       </body>
     </html>
