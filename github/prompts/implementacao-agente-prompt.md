@@ -109,8 +109,7 @@ O agente deve:
 - usar `use client` em componentes que chamam `useAccessibility`;
 - verificar antes de tocar em `window`, `document` ou `localStorage` em Server Components;
 - preservar atributos `data-a11y-*` e estilos visuais de foco;
-- manter `highContrast` e `darkMode` como estados mutuamente exclusivos;
-- respeitar limites de `fontSize` em `40` a `200`;
+- manter `dyslexiaFont`, `highlightLinks` e `readingLine` sincronizados pelos atributos `data-a11y-*`;
 - manter persistencia opcional com `persist={false}` quando solicitado;
 - validar que o Tailwind plugin esta registrado apenas em projetos com Tailwind;
 - testar `Escape`, foco, `aria-*` e retorno do foco do widget;
@@ -196,16 +195,6 @@ O agente deve usar apenas o CSS base manual e evitar importacoes desnecessarias 
 O projeto consumidor precisa de regras minimas para reagir aos atributos do provider:
 
 ```css
-html[data-a11y-dark="true"] body {
-  background: #030712;
-  color: #f3f4f6;
-}
-
-html[data-a11y-contrast="true"] body {
-  background: #000;
-  color: #fde047;
-}
-
 html[data-a11y-dyslexia="true"] body {
   font-family: Verdana, sans-serif;
   letter-spacing: 0.04em;
@@ -217,7 +206,7 @@ html[data-a11y-highlight-links="true"] a {
 }
 ```
 
-O agente deve evitar qualquer `font-size` fixo em `html` no projeto consumidor, porque o provider ja aplica a escala global.
+O provider nao aplica estilos inline no elemento `html`; o projeto consumidor deve fornecer os estilos visuais base.
 
 ## 8. Checklist de validacao final
 
@@ -226,12 +215,12 @@ O agente deve validar todos estes itens antes de encerrar:
 1. O provider envolve o scope correto.
 2. O widget aparece uma unica vez.
 3. O estado persiste ou nao conforme configuracao.
-4. `fontSize` respeita limite e incrementos.
-5. `darkMode` e `highContrast` nao ficam ativos juntos.
-6. Os atributos do `html` sao atualizados corretamente.
-7. As classes `a11y-*` reagem a aplicaçao.
-8. O foco e o teclado funcionam.
-9. O `Escape` fecha o painel.
+4. Os tres atributos mantidos do `html` sao atualizados corretamente.
+5. Nao existe estilo inline de `font-size` no `html`.
+6. As classes `a11y-dyslexia` e `a11y-highlight-links` reagem a aplicacao.
+7. O foco e o teclado funcionam.
+8. O `Escape` fecha o painel.
+9. O reset limpa todos os estados mantidos.
 10. O `localStorage` e recuperado sem quebrar JSON invalido.
 11. O projeto compila sem erros.
 12. O lint termina sem avisos relevantes.

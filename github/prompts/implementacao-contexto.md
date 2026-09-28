@@ -65,14 +65,11 @@ Arquivo: `src/components/AccessibilityContext.tsx`
 
 Responsabilidades:
 
-- armazenar o estado das preferencias;
+- armazenar `dyslexiaFont`, `highlightLinks` e `readingLine`;
 - fornecer valores e funcoes por Context API;
 - normalizar configuracoes invalidas;
-- limitar `fontSize` entre `40` e `200`;
 - salvar e restaurar preferencias do `localStorage`;
-- atualizar o tamanho da fonte do elemento `<html>`;
-- adicionar e remover os atributos `data-a11y-*`;
-- impedir que alto contraste e modo escuro fiquem ativos ao mesmo tempo.
+- adicionar e remover os atributos `data-a11y-*` mantidos.
 
 ### `AccessibilityWidget`
 
@@ -83,7 +80,7 @@ Responsabilidades:
 - renderizar o botao flutuante;
 - abrir e fechar o painel;
 - chamar as funcoes do contexto;
-- exibir a linha de leitura e a faixa-guia;
+- exibir a linha de leitura;
 - gerenciar foco ao abrir e fechar;
 - fechar o painel com `Escape`;
 - fornecer atributos ARIA para os controles.
@@ -145,19 +142,12 @@ Os nomes acima precisam continuar sincronizados com `src/index.ts`. Nao adicione
 
 | Propriedade | Tipo | Padrao | Comportamento |
 | --- | --- | --- | --- |
-| `fontSize` | `number` | `100` | Porcentagem do tamanho da fonte do documento. |
-| `highContrast` | `boolean` | `false` | Ativa alto contraste. |
-| `darkMode` | `boolean` | `false` | Ativa modo escuro. |
 | `dyslexiaFont` | `boolean` | `false` | Ativa fonte e espacamento alternativos. |
 | `highlightLinks` | `boolean` | `false` | Destaca links globalmente. |
 | `readingLine` | `boolean` | `false` | Mostra uma linha fina na altura do cursor. |
-| `markerLine` | `boolean` | `false` | Mostra uma faixa-guia na altura do cursor. |
 
 Regras importantes:
 
-- `fontSize` e limitado entre `40` e `200`.
-- Os botoes alteram a fonte em passos de `20` pontos percentuais.
-- Alto contraste e modo escuro sao mutuamente exclusivos.
 - Valores desconhecidos ou tipos invalidos sao ignorados pela normalizacao.
 - `resetAccessibility()` retorna para `initialSettings`, e nao necessariamente para o default global.
 
@@ -226,7 +216,6 @@ Nao acesse `window`, `document` ou `localStorage` durante o render de um Server 
 ```tsx
 <AccessibilityProvider
   initialSettings={{
-    fontSize: 120,
     dyslexiaFont: true,
   }}
   persist
@@ -264,15 +253,15 @@ O hook so pode ser usado dentro de `AccessibilityProvider`:
 import { useAccessibility } from "your-package";
 
 export function CustomAccessibilityButton() {
-  const { darkMode, toggleDarkMode } = useAccessibility();
+  const { highlightLinks, toggleHighlightLinks } = useAccessibility();
 
   return (
     <button
       type="button"
-      onClick={toggleDarkMode}
-      aria-pressed={darkMode}
+      onClick={toggleHighlightLinks}
+      aria-pressed={highlightLinks}
     >
-      {darkMode ? "Desativar modo escuro" : "Ativar modo escuro"}
+      {highlightLinks ? "Desativar destaque de links" : "Destacar links"}
     </button>
   );
 }
@@ -281,15 +270,9 @@ export function CustomAccessibilityButton() {
 Funcoes disponiveis:
 
 ```text
-increaseFontSize()
-decreaseFontSize()
-resetFontSize()
-toggleHighContrast()
-toggleDarkMode()
 toggleDyslexiaFont()
 toggleHighlightLinks()
 toggleReadingLine()
-toggleMarkerLine()
 resetAccessibility()
 ```
 
@@ -343,18 +326,14 @@ export default config;
 Variantes disponiveis:
 
 ```text
-a11y-contrast
-a11y-dark
 a11y-dyslexia
 a11y-highlight-links
-a11y-reading-line
-a11y-marker-line
 ```
 
 Exemplo:
 
 ```tsx
-<section className="bg-white text-gray-900 a11y-dark:bg-gray-950 a11y-dark:text-white a11y-contrast:bg-black a11y-contrast:text-yellow-300">
+<section className="bg-white text-gray-900 a11y-dyslexia:font-sans a11y-highlight-links:underline">
   Conteudo adaptavel
 </section>
 ```
@@ -366,16 +345,6 @@ As variantes procuram os atributos no elemento `<html>`. O plugin sozinho nao al
 O projeto consumidor precisa possuir estilos para os atributos globais. Exemplo minimo:
 
 ```css
-html[data-a11y-dark="true"] body {
-  background: #030712;
-  color: #f3f4f6;
-}
-
-html[data-a11y-contrast="true"] body {
-  background: #000;
-  color: #fde047;
-}
-
 html[data-a11y-dyslexia="true"] body {
   font-family: Verdana, sans-serif;
   letter-spacing: 0.04em;
@@ -532,11 +501,11 @@ A biblioteca estara pronta para reutilizacao quando:
 - um projeto React/Vite conseguir montar o provider;
 - os tipos forem resolvidos sem imports internos;
 - o widget funcionar sem duplicar listeners globais;
-- `fontSize` respeitar os limites;
-- alto contraste e modo escuro permanecerem exclusivos;
+- os tres estados mantidos alterarem apenas os atributos esperados;
+- o reset limpar todos os estados mantidos;
 - o `localStorage` puder ser desativado;
 - JSON invalido nao quebrar a aplicacao;
-- todas as variantes Tailwind forem geradas;
+- as variantes Tailwind suportadas forem geradas;
 - foco, teclado e ARIA forem preservados;
 - lint, typecheck, build e testes passarem;
 - a instalacao via GitHub for testada em um projeto consumidor limpo.

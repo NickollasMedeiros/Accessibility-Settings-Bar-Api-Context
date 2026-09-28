@@ -30,7 +30,7 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased transition-all duration-300 ease-in-out`}
     >
-      <body className="min-h-full flex flex-col transition-colors duration-300 ease-in-out a11y-contrast:bg-black a11y-contrast:text-white a11y-dark:bg-[#121212] a11y-dark:text-[#655b5b] a11y-dyslexia:font-mono">
+      <body className="min-h-full flex flex-col transition-colors duration-300 ease-in-out a11y-dyslexia:font-mono">
         <AccessibilityProvider>
           {children}
           <AccessibilityWidget position="bottom-right" />

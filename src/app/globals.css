@@ -16,16 +16,6 @@ body {
 }
 
 /* Cada seletor abaixo reage aos atributos escritos pelo AccessibilityProvider. */
-html[data-a11y-dark="true"] body {
-  background: #030712;
-  color: #f3f4f6;
-}
-
-html[data-a11y-contrast="true"] body {
-  background: #000;
-  color: #fde047;
-}
-
 html[data-a11y-dyslexia="true"] body {
   font-family: Verdana, sans-serif;
   letter-spacing: 0.04em;
