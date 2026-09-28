@@ -56,7 +56,7 @@ export default function RootLayout({
 }
 ```
 
-Consulte [documentacao.md](documentacao.md) para conhecer a arquitetura, o fluxo de estado e todas as opções da API.
+Consulte [documentacao.md](documentacao.md) para conhecer a arquitetura, o fluxo de estado e todas as opções da API. Para implementar a biblioteca em outro projeto, siga o guia completo em [implementacao.md](implementacao.md).
 
 ## Tailwind CSS
 
