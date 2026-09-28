@@ -4,11 +4,10 @@ Barra de acessibilidade reutilizável para aplicações React e Next.js com App 
 
 ## Funcionalidades
 
-- Aumentar e diminuir o tamanho global da fonte.
-- Alto contraste e modo escuro.
 - Fonte com maior espaçamento para leitura facilitada.
 - Destaque visual de links.
-- Linha de leitura e linha guia acompanhando o cursor.
+- Linha de leitura acompanhando o cursor.
+- Redefinição de todas as preferências.
 - Persistência opcional das preferências em `localStorage`.
 - Variantes customizadas do Tailwind baseadas em `data-*`.
 - Operação por teclado com foco, `Escape` e atributos ARIA.
@@ -56,7 +55,7 @@ export default function RootLayout({
 }
 ```
 
-Consulte [documentacao.md](documentacao.md) para conhecer a arquitetura, o fluxo de estado e todas as opções da API.
+Consulte [documentacao.md](documentacao.md) para conhecer a arquitetura, o fluxo de estado e todas as opções da API. Para implementar a biblioteca em outro projeto, siga o contexto em [implementacao-contexto.md](github/prompts/implementacao-contexto.md). Para orientação executiva para agentes de IA, use [implementacao-agente-prompt.md](github/prompts/implementacao-agente-prompt.md).
 
 ## Tailwind CSS
 
@@ -71,7 +70,7 @@ export default {
 };
 ```
 
-Depois, use variantes como `a11y-dark:bg-gray-950`, `a11y-contrast:bg-black` e `a11y-dyslexia:font-sans`.
+Depois, use variantes como `a11y-dyslexia:font-sans` e `a11y-highlight-links:underline`.
 
 ## Status do projeto
 

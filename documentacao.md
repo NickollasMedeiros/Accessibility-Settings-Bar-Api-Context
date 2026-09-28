@@ -34,17 +34,9 @@ O estado público é representado por `AccessibilitySettings`:
 
 | Propriedade | Tipo | Padrão | Efeito |
 | --- | --- | ---: | --- |
-| `fontSize` | `number` | `100` | Define o tamanho da fonte do documento em porcentagem. |
-| `highContrast` | `boolean` | `false` | Ativa o atributo de alto contraste. |
-| `darkMode` | `boolean` | `false` | Ativa o atributo de modo escuro. |
 | `dyslexiaFont` | `boolean` | `false` | Ativa o atributo da fonte para dislexia. |
 | `highlightLinks` | `boolean` | `false` | Ativa o destaque global de links. |
 | `readingLine` | `boolean` | `false` | Exibe uma linha horizontal na posição do cursor. |
-| `markerLine` | `boolean` | `false` | Exibe uma faixa-guia na posição do cursor. |
-
-O tamanho da fonte é limitado pela normalização entre `40` e `200`. Os controles visuais alteram o tamanho em passos de `20` pontos percentuais.
-
-Alto contraste e modo escuro são mutuamente exclusivos. Ativar um desativa o outro.
 
 ## 4. Provider e persistência
 
@@ -52,7 +44,7 @@ Exemplo de configuração:
 
 ```tsx
 <AccessibilityProvider
-  initialSettings={{ fontSize: 120, dyslexiaFont: true }}
+  initialSettings={{ dyslexiaFont: true }}
   storageKey="meu-app-a11y"
   persist
 >
@@ -90,11 +82,11 @@ Use o hook somente dentro de `AccessibilityProvider`:
 import { useAccessibility } from "your-package";
 
 export function CustomControl() {
-  const { darkMode, toggleDarkMode } = useAccessibility();
+  const { readingLine, toggleReadingLine } = useAccessibility();
 
   return (
-    <button type="button" onClick={toggleDarkMode} aria-pressed={darkMode}>
-      Modo escuro
+    <button type="button" onClick={toggleReadingLine} aria-pressed={readingLine}>
+      Linha de leitura
     </button>
   );
 }
@@ -102,14 +94,9 @@ export function CustomControl() {
 
 O hook expõe o estado e as seguintes ações:
 
-- `increaseFontSize()` e `decreaseFontSize()`.
-- `resetFontSize()`.
-- `toggleHighContrast()`.
-- `toggleDarkMode()`.
 - `toggleDyslexiaFont()`.
 - `toggleHighlightLinks()`.
 - `toggleReadingLine()`.
-- `toggleMarkerLine()`.
 - `resetAccessibility()`.
 
 Fora do provider, `useAccessibility` lança um erro explícito para indicar configuração incorreta.
@@ -118,22 +105,13 @@ Fora do provider, `useAccessibility` lança um erro explícito para indicar conf
 
 A sincronização ocorre exclusivamente em `document.documentElement`.
 
-A única propriedade inline usada é:
-
-```html
-<html style="font-size: 120%;">
-```
-
-As outras preferências usam atributos:
+As preferências usam atributos:
 
 | Preferência | Atributo quando ativa |
 | --- | --- |
-| Alto contraste | `data-a11y-contrast="true"` |
-| Modo escuro | `data-a11y-dark="true"` |
 | Fonte para dislexia | `data-a11y-dyslexia="true"` |
 | Destaque de links | `data-a11y-highlight-links="true"` |
 | Linha de leitura | `data-a11y-reading-line="true"` |
-| Linha guia | `data-a11y-marker-line="true"` |
 
 Quando uma opção é desativada, seu atributo é removido. Isso mantém o DOM previsível e permite que CSS comum ou Tailwind reaja aos estados.
 
@@ -180,17 +158,13 @@ export default {
 
 Variantes disponíveis:
 
-- `a11y-contrast`
-- `a11y-dark`
 - `a11y-dyslexia`
 - `a11y-highlight-links`
-- `a11y-reading-line`
-- `a11y-marker-line`
 
 Exemplos:
 
 ```tsx
-<section className="bg-white text-gray-900 a11y-dark:bg-gray-950 a11y-dark:text-white a11y-contrast:bg-black a11y-contrast:text-yellow-300">
+<section className="bg-white text-gray-900 a11y-dyslexia:font-sans a11y-highlight-links:underline">
   Conteúdo adaptável
 </section>
 ```
@@ -230,10 +204,10 @@ Durante os testes manuais, verifique:
 3. `Escape` fecha o painel e devolve o foco ao trigger.
 4. Preferências sobrevivem a um reload quando `persist` está ativo.
 5. JSON inválido no storage não quebra a aplicação.
-6. Aumentar a fonte altera o `font-size` do `<html>`.
-7. Os demais estados alteram somente os atributos `data-a11y-*`.
-8. Alto contraste e modo escuro não ficam ativos simultaneamente.
-9. As variantes do Tailwind respondem aos atributos.
+6. Os três estados alteram somente os atributos `data-a11y-*` esperados.
+7. Não há estilo inline de `font-size` no `<html>`.
+8. O reset desativa todos os estados mantidos.
+9. As variantes do Tailwind respondem aos atributos suportados.
 10. O layout ocupa toda a largura em desktop e mobile.
 
 ## 11. Estado atual do pacote

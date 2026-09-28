@@ -8,12 +8,8 @@ import { useAccessibility } from "./AccessibilityContext";
 import { useMousePosition } from "../hooks/useMousePosition";
 import {
   UserCircleIcon,
-  MagnifyingGlassPlusIcon,
-  MagnifyingGlassMinusIcon,
   ArrowPathIcon,
-  MoonIcon,
   Bars4Icon,
-  EyeIcon,
   XMarkIcon,
   LanguageIcon,
   LinkIcon
@@ -40,24 +36,16 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
   const menuId = useId();
   const wasOpen = useRef(false);
   const {
-    highContrast,
-    darkMode,
     dyslexiaFont,
     highlightLinks,
     readingLine,
-    markerLine,
-    increaseFontSize,
-    decreaseFontSize,
-    toggleHighContrast,
-    toggleDarkMode,
     toggleDyslexiaFont,
     toggleHighlightLinks,
     toggleReadingLine,
-    toggleMarkerLine,
     resetAccessibility,
   } = useAccessibility();
 
-  const mousePosition = useMousePosition(readingLine || markerLine);
+  const mousePosition = useMousePosition(readingLine);
 
   // Classes separadas permitem manter o posicionamento do menu alinhado ao trigger.
   const positionClasses = {
@@ -105,17 +93,8 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
       {/* Linha fina que acompanha o cursor quando readingLine está ativo. */}
       {readingLine && (
         <div
-          className="fixed left-0 w-full h-2 bg-red-600 z-[9999] pointer-events-none opacity-100 a11y-contrast:bg-yellow-400"
+          className="fixed left-0 w-full h-2 bg-red-600 z-[9999] pointer-events-none opacity-100"
           style={{ top: `${mousePosition.y}px` }}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Faixa de leitura que acompanha o cursor quando markerLine está ativo. */}
-      {markerLine && (
-        <div
-          className="fixed left-0 w-full h-8 border-y border-y-[#cde400] bg-[#e4fd00] opacity-75 z-[9999] pointer-events-none mix-blend-color a11y-contrast:mix-blend-multiply a11y-contrast:opacity-100 a11y-dark:bg-[#655b5b] a11y-dark:opacity-25 a11y-dark:mix-blend-normal"
-          style={{ top: `${mousePosition.y - 16}px` }}
           aria-hidden="true"
         />
       )}
@@ -131,7 +110,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
         <div
           ref={menuRef}
           className={twMerge(
-            "absolute transition-all duration-300 ease-in-out w-64 bg-gray-900/90 rounded-lg shadow-2xl overflow-y-auto max-h-[80vh] p-2 a11y-contrast:bg-black a11y-contrast:border-yellow-400 a11y-contrast:border a11y-dark:bg-[#121212] a11y-dark:border-[#191414] a11y-dark:border",
+            "absolute transition-all duration-300 ease-in-out w-64 bg-gray-900/90 rounded-lg shadow-2xl overflow-y-auto max-h-[80vh] p-2",
             isOpen
               ? "opacity-100 translate-y-0 visible"
               : "opacity-0 translate-y-4 invisible pointer-events-none",
@@ -146,34 +125,6 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
             Opções de acessibilidade
           </h2>
           <div className="flex flex-col gap-1">
-            <WidgetButton
-              icon={<MagnifyingGlassPlusIcon className="w-5 h-5" />}
-              label="Aumentar fonte"
-              onClick={increaseFontSize}
-              primaryColor={primaryColor}
-            />
-            <WidgetButton
-              icon={<MagnifyingGlassMinusIcon className="w-5 h-5" />}
-              label="Diminuir fonte"
-              onClick={decreaseFontSize}
-              primaryColor={primaryColor}
-            />
-            <WidgetButton
-              icon={<EyeIcon className="w-5 h-5" />}
-              label="Alto contraste"
-              onClick={toggleHighContrast}
-              active={highContrast}
-              isToggle
-              primaryColor={primaryColor}
-            />
-            <WidgetButton
-              icon={<MoonIcon className="w-5 h-5" />}
-              label="Modo escuro"
-              onClick={toggleDarkMode}
-              active={darkMode}
-              isToggle
-              primaryColor={primaryColor}
-            />
             <WidgetButton
               icon={<LanguageIcon className="w-5 h-5" />}
               label="Fonte dislexia"
@@ -199,14 +150,6 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
               primaryColor={primaryColor}
             />
             <WidgetButton
-              icon={<Bars4Icon className="w-5 h-5 rotate-90" />}
-              label="Linha guia"
-              onClick={toggleMarkerLine}
-              active={markerLine}
-              isToggle
-              primaryColor={primaryColor}
-            />
-            <WidgetButton
               icon={<ArrowPathIcon className="w-5 h-5" />}
               label="Redefinir"
               onClick={resetAccessibility}
@@ -221,7 +164,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({
           type="button"
           onClick={toggleOpen}
           className={twMerge(
-            "flex items-center justify-center w-12 h-12 rounded-full text-white shadow-lg transition-transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/50 a11y-contrast:bg-yellow-400 a11y-contrast:text-black a11y-dark:bg-[#292323] a11y-dark:text-[#8d8080]",
+            "flex items-center justify-center w-12 h-12 rounded-full text-white shadow-lg transition-transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/50",
             primaryColor
           )}
           aria-expanded={isOpen}
@@ -264,18 +207,17 @@ const WidgetButton: React.FC<WidgetButtonProps> = ({
       aria-pressed={isToggle ? active : undefined}
       onClick={onClick}
       className={twMerge(
-        "flex items-center gap-3 w-full p-2 rounded-md text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 text-gray-800 bg-gray-200 hover:bg-white a11y-contrast:bg-black a11y-contrast:text-yellow-400 a11y-contrast:border a11y-contrast:border-yellow-400 a11y-contrast:hover:bg-yellow-400 a11y-contrast:hover:text-black a11y-dark:bg-[#191414] a11y-dark:text-[#8d8080] a11y-dark:hover:bg-[#292323]",
+        "flex items-center gap-3 w-full p-2 rounded-md text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 text-gray-800 bg-gray-200 hover:bg-white",
         active &&
           clsx(
             "text-white hover:text-white",
             primaryColor,
-            "a11y-contrast:bg-yellow-400 a11y-contrast:text-black a11y-dark:bg-[#121212] a11y-dark:text-white"
           )
       )}
     >
       <span
         className={twMerge(
-          "flex items-center justify-center w-8 h-8 rounded text-white bg-red-600 a11y-contrast:bg-yellow-400 a11y-contrast:text-black a11y-dark:bg-[#292323] a11y-dark:text-[#8d8080]",
+          "flex items-center justify-center w-8 h-8 rounded text-white bg-red-600",
           primaryColor
         )}
       >
